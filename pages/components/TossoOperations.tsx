@@ -1,10 +1,9 @@
-import styles from '../../styles/Evernote.module.scss';
+import styles from '../../styles/Tosso.module.css';
 import { useState, useEffect } from 'react';
 import { app, database } from '../../firebase/firebaseConfig';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
 import QuillWrapper from './Dynamic';
 import 'react-quill/dist/quill.snow.css';
-import { notEqual } from 'assert';
 
 // index.tsx에서 getSingleTosso프롭스 가져오기
 const TossoOperations = ({ getSingleTosso }) => {
@@ -87,10 +86,15 @@ const TossoOperations = ({ getSingleTosso }) => {
 						className={styles.input}
 						placeholder="Enter the tosso.."
 						onChange={(e) => setTossoTitle(e.target.value)}
+						value={tossoTitle}
 					/>
 					{/* 입력값 들어올시 tossoDesc 값을 그걸로 변경 */}
 					<div className={styles.ReactQuill}>
-						<QuillWrapper theme="snow" onChange={addDesc} />
+						<QuillWrapper
+							theme="snow"
+							onChange={addDesc}
+							value={tossoDesc}
+						/>
 					</div>
 				</div>
 			) : (
