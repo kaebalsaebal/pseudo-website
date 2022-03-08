@@ -8,7 +8,7 @@ import {
 	updateDoc,
 	deleteDoc,
 } from 'firebase/firestore';
-import styles from '../../styles/Evernote.module.scss';
+import styles from '../../styles/Tosso.module.css';
 import QuillWrapper from './Dynamic';
 import 'react-quill/dist/quill.snow.css';
 

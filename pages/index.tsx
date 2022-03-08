@@ -1,9 +1,11 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import styles from '../styles/Evernote.module.scss';
-import { useState } from 'react';
+import styles from '../styles/Tosso.module.css';
+import { useState, useEffect } from 'react';
 import TossoOperations from './components/TossoOperations';
 import TossoDetails from './components/TossoDetails';
+import initToken from './fcm/messaging_get_token';
+import initMessage from './fcm/messaging_get_message';
 
 const Home: NextPage = () => {
 	//TossoOperation에 있는 문서들 아이디 담을 스테이트
@@ -13,6 +15,9 @@ const Home: NextPage = () => {
 	function getSingleTosso(id) {
 		setId(id);
 	}
+
+	//useEffect(initToken, []);
+	//useEffect(initMessage, []);
 
 	return (
 		<div className={styles.container}>
