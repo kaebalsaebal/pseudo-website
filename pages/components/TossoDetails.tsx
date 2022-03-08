@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { app, database } from '../../firebase/firebaseConfig';
+import { app, database, serkey } from '../../firebase/firebaseConfig';
 import {
 	doc,
 	getDoc,
@@ -8,9 +8,10 @@ import {
 	updateDoc,
 	deleteDoc,
 } from 'firebase/firestore';
-import styles from '../../styles/Evernote.module.scss';
+import styles from '../../styles/Tosso.module.css';
 import QuillWrapper from './Dynamic';
 import 'react-quill/dist/quill.snow.css';
+import axios from 'axios';
 
 const TossoDetails = ({ id }) => {
 	const [singleTosso, setSingleTosso] = useState({});
@@ -30,9 +31,10 @@ const TossoDetails = ({ id }) => {
 		getSingleTosso();
 	}, [id]);
 
+	const dbInstance = collection(database, 'tosso');
+
 	// 새로고침시 기본 표시할 문서(맨 처음 문서를 기본으로)
 	function getTosso() {
-		const dbInstance = collection(database, 'tosso');
 		getDocs(dbInstance).then((data) => {
 			setSingleTosso(
 				data.docs.map((item) => {
@@ -78,9 +80,31 @@ const TossoDetails = ({ id }) => {
 		});
 	};
 
+	const dbTokenData = collection(database, 'tokens');
+
+	const getAlert = async () => {
+		const data = await getDoc(doc(dbTokenData, 'my'));
+		let token = data.data().token;
+		axios({
+			url: 'https://fcm.googleapis.com/fcm/send',
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `key=${serkey}`,
+			},
+			data: {
+				to: `${token}`,
+				notification: {
+					title: 'Tosso',
+					body: 'Tissi',
+				},
+			},
+		});
+	};
+
 	return (
 		<>
-			<h2>{singleTosso.title}</h2>
+			<h2 onClick={getAlert}>{singleTosso.title}</h2>
 			<div dangerouslySetInnerHTML={{ __html: singleTosso.desc }}></div>
 
 			<div>
