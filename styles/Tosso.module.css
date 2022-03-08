@@ -1,0 +1,68 @@
+.container {
+	display: flex;
+}
+
+.left {
+	width: 20rem;
+}
+.right {
+}
+
+.button {
+	width: 15rem;
+	height: 2rem;
+	cursor: pointer;
+	background-color: black;
+	color: whiteSmoke;
+	border: black;
+	font-family: sans-serif;
+}
+
+.input {
+	width: 15rem;
+	height: 2rem;
+	outline: none;
+	border-radius: 5px;
+	border: 1px solid gray;
+	margin: 5px 0;
+}
+
+.saveBtn {
+	width: 15rem;
+	height: 2rem;
+	cursor: pointer;
+	background-color: rgb(119, 27, 27);
+	color: whiteSmoke;
+	border: rgb(119, 27, 27);
+	font-family: sans-serif;
+}
+
+.ReactQuill {
+	width: 15rem;
+}
+
+.tossoesWrapper {
+	margin-top: 0.5rem;
+	border: 1px solid rgb(119, 27, 27);
+	border-radius: 10px;
+	width: 15rem;
+	text-align: center;
+	cursor: pointer;
+	font-family: sans-serif;
+}
+
+.tossoesWrapper:hover {
+	background-color: rgb(119, 27, 27);
+	color: whiteSmoke;
+}
+
+.editBtn,
+.deleteBtn {
+	width: 5rem;
+	height: 2rem;
+	background-color: rgb(119, 27, 27);
+	color: whiteSmoke;
+	border: none;
+	cursor: pointer;
+	margin: 10px 10px 10px 0;
+}

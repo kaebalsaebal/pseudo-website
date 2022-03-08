@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import styles from '../styles/Evernote.module.scss';
+import styles from '../styles/Tosso.module.css';
 import { useState } from 'react';
 import TossoOperations from './components/TossoOperations';
 import TossoDetails from './components/TossoDetails';
