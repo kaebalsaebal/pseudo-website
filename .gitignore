@@ -37,5 +37,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+# 디펜던시 꼬이는 현상방지
+package-lock.json
+
 # 보안파일
 src/firebase/firebaseConfig.ts
