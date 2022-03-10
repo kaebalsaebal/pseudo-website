@@ -1,10 +1,12 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { useEffect } from 'react';
-import { database } from '../firebase/firebaseConfig';
 import { collection, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import initToken from './fcm/messaging_get_token';
-import initMessage from './fcm/messaging_get_message';
+import Top from '../src/components/Top';
+import Footer from '../src/components/Footer';
+import { database } from '../src/firebase/firebaseConfig';
+import initToken from '../src/firebase/fcm/messaging_get_token';
+import initMessage from '../src/firebase/fcm/messaging_get_message';
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const dbTokenData = collection(database, 'tokens');
@@ -15,10 +17,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 	따라서 감싸는 함수에 async/await를 사용해서 getToken의 then 구문까지 실행되도록 대기
 	*/
 	const initTokenWrapper = async () => {
-		let token = await initToken();
+		const token = await initToken();
 
 		const docprofile = doc(dbTokenData, 'my');
-		//getDoc은 프로미스 함수이므로 리턴값 받기위해 await 사용
+		// getDoc은 프로미스 함수이므로 리턴값 받기위해 await 사용
 		const data = await getDoc(docprofile);
 		if (data.exists()) {
 			console.log(data.data().token);
@@ -27,7 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 			});
 		} else {
 			setDoc(doc(dbTokenData, 'my'), {
-				token: token,
+				token,
 				timestamp: Date.now(),
 			});
 		}
@@ -40,7 +42,13 @@ function MyApp({ Component, pageProps }: AppProps) {
 
 	useEffect(initMessage, []);
 
-	return <Component {...pageProps} />;
+	return (
+		<div>
+			<Top />
+			<Component {...pageProps} />
+			<Footer />
+		</div>
+	);
 }
 
 export default MyApp;

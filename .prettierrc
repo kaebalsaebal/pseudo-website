@@ -1,7 +1,7 @@
 {
 	"arrowParens": "always",
 	"bracketSpacing": true,
-	"endOfLine": "lf",
+	"endOfLine": "auto",
 	"jsxBracketSameLine": true,
 	"jsxsingleQuote": true,
 	"singleQuote": true,

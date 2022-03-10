@@ -1,5 +1,5 @@
 import { getMessaging, getToken } from 'firebase/messaging';
-import { app, clikey } from '../../firebase/firebaseConfig';
+import { app, clikey } from '../firebaseConfig';
 
 // 토큰 생성
 const initToken = async () => {
@@ -12,12 +12,11 @@ const initToken = async () => {
 		.then((currentToken) => {
 			if (currentToken) {
 				return currentToken;
-			} else {
-				console.log(
-					'No registration token available. Request permission to generate one.',
-				);
-				return null;
 			}
+			console.log(
+				'No registration token available. Request permission to generate one.',
+			);
+			return null;
 		})
 		.catch((err) => {
 			console.log('An error occurred while retrieving token. ', err);
