@@ -1,39 +1,31 @@
-import styles from '../../styles/Tosso.module.css';
+import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
-import { app, database } from '../../firebase/firebaseConfig';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { database } from '../firebase/firebaseConfig';
 import QuillWrapper from './Dynamic';
 import 'react-quill/dist/quill.snow.css';
+import styles from '../../styles/Tosso.module.css';
 
 // index.tsx에서 getSingleTosso프롭스 가져오기
-const TossoOperations = ({ getSingleTosso }) => {
-	//isInputVisible 기본값은 false
+function TossoOperations({ getSingleTosso }) {
+	// isInputVisible 기본값은 false
 	const [isInputVisible, setInputVisible] = useState(false);
-	//isInputVisible 값 변경시키는 트리거
+	// isInputVisible 값 변경시키는 트리거
 	function inputToggle() {
 		setInputVisible(!isInputVisible);
 	}
 
 	// tossoTitle 기본값은 비어있는
 	const [tossoTitle, setTossoTitle] = useState('');
+	// 마찬가지로 기본값이 비어있는 tossoDesc 생성, setTossoDesc로 값 변경
+	const [tossoDesc, setTossoDesc] = useState('');
+	// setTossoDesc의 트리거함수(value는 onChange가 알아서 결정)
+	function addDesc(value) {
+		setTossoDesc(value);
+	}
+
 	// firestore에서 tosso 이름인 콜렉션 가져오기
 	const dbInstance = collection(database, 'tosso');
-	// addDoc의 트리거함수
-	function saveTosso() {
-		//addDoc은 콜렉션(dbInstance)에 문서 추가
-		addDoc(dbInstance, {
-			// title 필드 생성후 값을 tossoTitle로, desc 필드 생성후 값을 tossoDesc로
-			title: tossoTitle,
-			desc: tossoDesc,
-			// 문서 추가가 완료되면 콜백작동
-		}).then(() => {
-			// 입력창 초기화
-			setTossoTitle('');
-			setTossoDesc('');
-			// 현재 문서들 보여주기
-			getTosso();
-		});
-	}
 
 	// 이제 말안해도 알겠지?
 	const [tossoArray, setTossoArray] = useState([]);
@@ -50,7 +42,7 @@ const TossoOperations = ({ getSingleTosso }) => {
 					return { ...item.data(), id: item.id };
 				}),
 			);
-			//tossoArray에 각 문서값 저장
+			// tossoArray에 각 문서값 저장
 			setTossoArray(
 				data.docs.map((item) => {
 					return { ...item.data(), id: item.id };
@@ -63,17 +55,27 @@ const TossoOperations = ({ getSingleTosso }) => {
 		getTosso();
 	}, []);
 
-	//마찬가지로 기본값이 비어있는 tossoDesc 생성, setTossoDesc로 값 변경
-	const [tossoDesc, setTossoDesc] = useState('');
-	//setTossoDesc의 트리거함수(value는 onChange가 알아서 결정)
-	function addDesc(value) {
-		setTossoDesc(value);
+	// addDoc의 트리거함수
+	function saveTosso() {
+		// addDoc은 콜렉션(dbInstance)에 문서 추가
+		addDoc(dbInstance, {
+			// title 필드 생성후 값을 tossoTitle로, desc 필드 생성후 값을 tossoDesc로
+			title: tossoTitle,
+			desc: tossoDesc,
+			// 문서 추가가 완료되면 콜백작동
+		}).then(() => {
+			// 입력창 초기화
+			setTossoTitle('');
+			setTossoDesc('');
+			// 현재 문서들 보여주기
+			getTosso();
+		});
 	}
 
 	return (
 		<>
 			<div className={styles.btnContainer}>
-				{/*클릭시 inputToggle 트리거 발동-->*/}
+				{/* 클릭시 inputToggle 트리거 발동--> */}
 				<button className={styles.button} onClick={inputToggle}>
 					Add a New Tosso
 				</button>
@@ -85,7 +87,9 @@ const TossoOperations = ({ getSingleTosso }) => {
 					<input
 						className={styles.input}
 						placeholder="Enter the tosso.."
-						onChange={(e) => setTossoTitle(e.target.value)}
+						onChange={(e) => {
+							return setTossoTitle(e.target.value);
+						}}
 						value={tossoTitle}
 					/>
 					{/* 입력값 들어올시 tossoDesc 값을 그걸로 변경 */}
@@ -110,17 +114,24 @@ const TossoOperations = ({ getSingleTosso }) => {
 			<div className={styles.tossoesContainer}>
 				{tossoArray.map((tosso) => {
 					return (
-						<div
+						<button
 							className={styles.tossoesWrapper}
 							/* 클릭시 프롭스로 가져온 getSingleTosso에 해당 문서 id를 담아 실행 */
-							onClick={() => getSingleTosso(tosso.id)}>
+							onClick={() => {
+								return getSingleTosso(tosso.id);
+							}}>
 							<h4>{tosso.title}</h4>
-						</div>
+						</button>
 					);
 				})}
 			</div>
 		</>
 	);
-};
+}
 
 export default TossoOperations;
+
+// 프롭스체크
+TossoOperations.propTypes = {
+	getSingleTosso: PropTypes.func.isRequired,
+};

@@ -1,5 +1,6 @@
+import axios from 'axios';
+import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
-import { app, database, serkey } from '../../firebase/firebaseConfig';
 import {
 	doc,
 	getDoc,
@@ -8,25 +9,25 @@ import {
 	updateDoc,
 	deleteDoc,
 } from 'firebase/firestore';
+import { database, serkey } from '../firebase/firebaseConfig';
 import styles from '../../styles/Tosso.module.css';
 import QuillWrapper from './Dynamic';
 import 'react-quill/dist/quill.snow.css';
-import axios from 'axios';
 
-const TossoDetails = ({ id }) => {
+function TossoDetails({ id }) {
 	const [singleTosso, setSingleTosso] = useState({});
-	//프롭스로 받은 id에 해당하는 firestore 문서 정보를 singleTosso에 저장
-	//firebase에 요청하므로 비동기 처리사용
+	// 프롭스로 받은 id에 해당하는 firestore 문서 정보를 singleTosso에 저장
+	// firebase에 요청하므로 비동기 처리사용
 	async function getSingleTosso() {
 		if (id) {
 			const singleTosso = doc(database, 'tosso', id);
-			//getDoc은 특정 문서(doc객체)만 받아오는 것
+			// getDoc은 특정 문서(doc객체)만 받아오는 것
 			const data = await getDoc(singleTosso);
 			setSingleTosso({ ...data.data(), id: data.id });
 		}
 	}
-	//id가 바뀔 때마다 getSingleTosso 다시 실행
-	//[]이면 페이지가 새로 렌더링(새로고침등)될때마다, [값]이면 값이 바뀔 때마다, 없으면 처음 한번만 수행
+	// id가 바뀔 때마다 getSingleTosso 다시 실행
+	// []이면 페이지가 새로 렌더링(새로고침등)될때마다, [값]이면 값이 바뀔 때마다, 없으면 처음 한번만 수행
 	useEffect(() => {
 		getSingleTosso();
 	}, [id]);
@@ -50,16 +51,16 @@ const TossoDetails = ({ id }) => {
 	// 수정버튼 눌렀는지 관련 스테이트
 	const [isEdit, setIsEdit] = useState(false);
 
-	// 수정버튼 누르면 수정창이 나오도록
-	const getEditData = () => {
-		setIsEdit(true);
-		setTossoTitle(singleTosso.title);
-		setTossoDesc(singleTosso.desc);
-	};
-
 	// 수정할 제목과 내용 관련 스테이트
 	const [tossoTitle, setTossoTitle] = useState('');
 	const [tossoDesc, setTossoDesc] = useState('');
+
+	// 수정버튼 누르면 수정창이 나오도록
+	const getEditData = () => {
+		setIsEdit(true);
+		setTossoTitle((singleTosso as any).title);
+		setTossoDesc((singleTosso as any).desc);
+	};
 
 	const editTosso = (id) => {
 		const collectionById = doc(database, 'tosso', id);
@@ -84,7 +85,7 @@ const TossoDetails = ({ id }) => {
 
 	const getAlert = async () => {
 		const data = await getDoc(doc(dbTokenData, 'my'));
-		let token = data.data().token;
+		const { token } = data.data();
 		axios({
 			url: 'https://fcm.googleapis.com/fcm/send',
 			method: 'POST',
@@ -96,7 +97,7 @@ const TossoDetails = ({ id }) => {
 				to: `${token}`,
 				notification: {
 					title: 'Tosso',
-					body: 'Tissi',
+					body: `${(singleTosso as any).desc}`,
 				},
 			},
 		});
@@ -104,8 +105,14 @@ const TossoDetails = ({ id }) => {
 
 	return (
 		<>
-			<h2 onClick={getAlert}>{singleTosso.title}</h2>
-			<div dangerouslySetInnerHTML={{ __html: singleTosso.desc }}></div>
+			<button onClick={getAlert}>
+				<h2>{(singleTosso as any).title}</h2>
+			</button>
+			<div
+				dangerouslySetInnerHTML={{
+					__html: (singleTosso as any).desc,
+				}}
+			/>
 
 			<div>
 				<button className={styles.editBtn} onClick={getEditData}>
@@ -113,7 +120,9 @@ const TossoDetails = ({ id }) => {
 				</button>
 				<button
 					className={styles.deleteBtn}
-					onClick={() => deleteTosso(singleTosso.id)}>
+					onClick={() => {
+						return deleteTosso((singleTosso as any).id);
+					}}>
 					Delete
 				</button>
 			</div>
@@ -123,7 +132,9 @@ const TossoDetails = ({ id }) => {
 					<input
 						className={styles.input}
 						placeholder="Enter the Title.."
-						onChange={(e) => setTossoTitle(e.target.value)}
+						onChange={(e) => {
+							return setTossoTitle(e.target.value);
+						}}
 						value={tossoTitle}
 					/>
 					<div className={styles.ReactQuill}>
@@ -135,7 +146,9 @@ const TossoDetails = ({ id }) => {
 					</div>
 					<button
 						className={styles.saveBtn}
-						onClick={() => editTosso(singleTosso.id)}>
+						onClick={() => {
+							return editTosso((singleTosso as any).id);
+						}}>
 						Update Note
 					</button>
 				</div>
@@ -144,6 +157,11 @@ const TossoDetails = ({ id }) => {
 			)}
 		</>
 	);
-};
+}
 
 export default TossoDetails;
+
+TossoDetails.propTypes = {
+	// eslint-disable-next-line react/forbid-prop-types
+	id: PropTypes.any.isRequired,
+};
