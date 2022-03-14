@@ -1,8 +1,7 @@
 import { getMessaging, onMessage } from 'firebase/messaging';
-import { app } from '../firebaseConfig';
 
 const initMessage = () => {
-	const messaging = getMessaging(app);
+	const messaging = getMessaging();
 	onMessage(messaging, (payload) => {
 		console.log(payload.data.title);
 		console.log(payload.data.body);
