@@ -1,5 +1,6 @@
 # pseudo-website
 개발 연습용 Next.js 프로젝트입니다
+```src/firebase/firebaseConfig.ts``` 랑 ```public/firebase-messaging-sw.js```는 알아서 만드셔야 
 
 # Getting Started with Create React App
 
