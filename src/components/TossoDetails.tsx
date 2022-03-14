@@ -9,7 +9,7 @@ import {
 	updateDoc,
 	deleteDoc,
 } from 'firebase/firestore';
-import { database, serkey } from '../firebase/firebaseConfig';
+import { database } from '../firebase/firebaseConfig';
 import styles from '../../styles/Tosso.module.css';
 import QuillWrapper from './Dynamic';
 import 'react-quill/dist/quill.snow.css';
@@ -84,21 +84,17 @@ function TossoDetails({ id }) {
 	const dbTokenData = collection(database, 'tokens');
 
 	const getAlert = async () => {
+		// 토큰을 파이어스토어에서 꺼내오기
 		const data = await getDoc(doc(dbTokenData, 'my'));
 		const { token } = data.data();
+
+		// 토큰과 받고싶은 메세지를 요청의 Body에 담아 POST전송
 		axios({
-			url: 'https://fcm.googleapis.com/fcm/send',
+			url: 'http://localhost:8080/fcm',
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `key=${serkey}`,
-			},
 			data: {
-				to: `${token}`,
-				notification: {
-					title: 'Tosso',
-					body: `${(singleTosso as any).desc}`,
-				},
+				token: `${token}`,
+				message: 'tosso',
 			},
 		});
 	};

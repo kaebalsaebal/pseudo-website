@@ -17,19 +17,19 @@ function MyApp({ Component, pageProps }: AppProps) {
 	따라서 감싸는 함수에 async/await를 사용해서 getToken의 then 구문까지 실행되도록 대기
 	*/
 	const initTokenWrapper = async () => {
-		const token = await initToken();
+		const mytoken = await initToken();
+		console.log(mytoken);
 
 		const docprofile = doc(dbTokenData, 'my');
 		// getDoc은 프로미스 함수이므로 리턴값 받기위해 await 사용
 		const data = await getDoc(docprofile);
 		if (data.exists()) {
-			console.log(data.data().token);
 			updateDoc(doc(dbTokenData, 'my'), {
 				timestamp: Date.now(),
 			});
 		} else {
 			setDoc(doc(dbTokenData, 'my'), {
-				token,
+				token: mytoken,
 				timestamp: Date.now(),
 			});
 		}
