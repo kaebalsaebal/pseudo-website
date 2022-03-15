@@ -63,11 +63,38 @@
 
 .editBtn,
 .deleteBtn {
-	width: 5rem;
+	width: 7rem;
 	height: 2rem;
 	background-color: rgb(119, 27, 27);
 	color: whiteSmoke;
 	border: none;
 	cursor: pointer;
-	margin: 10px 10px 10px 0;
+	margin: 10px 0.25rem 10px 0.25rem;
+}
+
+.commentsContainer {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	border-bottom: 1px solid rgb(119, 27, 27);
+}
+
+.commentsDeleteBtn {
+	background-color: white;
+	border: none;
+	cursor: pointer;
+}
+
+.commentsDeleteBtn:hover {
+	background-color: rgb(119, 27, 27);
+	color: whitesmoke;
+}
+
+.commentBtn {
+	width: 15rem;
+	height: 2rem;
+	background-color: rgb(119, 27, 27);
+	color: whiteSmoke;
+	border: none;
+	cursor: pointer;
 }

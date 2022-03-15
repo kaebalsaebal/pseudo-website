@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import {
 	doc,
+	addDoc,
 	getDoc,
 	getDocs,
 	collection,
@@ -24,6 +25,8 @@ function TossoDetails({ id }) {
 			// getDoc은 특정 문서(doc객체)만 받아오는 것
 			const data = await getDoc(singleTosso);
 			setSingleTosso({ ...data.data(), id: data.id });
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			getComments(id);
 		}
 	}
 	// id가 바뀔 때마다 getSingleTosso 다시 실행
@@ -57,7 +60,7 @@ function TossoDetails({ id }) {
 
 	// 수정버튼 누르면 수정창이 나오도록
 	const getEditData = () => {
-		setIsEdit(true);
+		setIsEdit(!isEdit);
 		setTossoTitle((singleTosso as any).title);
 		setTossoDesc((singleTosso as any).desc);
 	};
@@ -83,20 +86,55 @@ function TossoDetails({ id }) {
 
 	const dbTokenData = collection(database, 'tokens');
 
-	const getAlert = async () => {
+	const getAlert = async (message) => {
 		// 토큰을 파이어스토어에서 꺼내오기
 		const data = await getDoc(doc(dbTokenData, 'my'));
 		const { token } = data.data();
 
 		// 토큰과 받고싶은 메세지를 요청의 Body에 담아 POST전송
 		axios({
-			url: 'http://localhost:8080/fcm',
+			url: 'https://ec15-121-166-111-58.jp.ngrok.io/fcm',
 			method: 'POST',
 			data: {
 				token: `${token}`,
-				message: 'tosso',
+				message: `${message} 가 등록되었습니다`,
 			},
 		});
+	};
+
+	const [commentArray, setCommentArray] = useState([]);
+
+	const getComments = (id) => {
+		const subcol = collection(dbInstance, id, 'comments');
+		getDocs(subcol).then((data) => {
+			setCommentArray(
+				data.docs.map((item) => {
+					return { ...item.data(), id: item.id };
+				}),
+			);
+		});
+	};
+
+	const [comment, setComment] = useState('');
+
+	const saveComment = async (id) => {
+		const subcol = collection(dbInstance, id, 'comments');
+		await addDoc(subcol, {
+			content: comment,
+		});
+		getComments(id);
+		getAlert(comment);
+	};
+
+	const deleteComment = async (comid) => {
+		const targetdoc = doc(
+			dbInstance,
+			(singleTosso as any).id,
+			'comments',
+			comid,
+		);
+		await deleteDoc(targetdoc);
+		getComments((singleTosso as any).id);
 	};
 
 	return (
@@ -151,6 +189,40 @@ function TossoDetails({ id }) {
 			) : (
 				<></>
 			)}
+
+			<div className={styles.ReactQuill}>
+				<h4>comments</h4>
+				<div>
+					{commentArray.map((c) => {
+						return (
+							<div className={styles.commentsContainer}>
+								<span>{c.content}</span>
+								<button
+									className={styles.commentsDeleteBtn}
+									onClick={() => {
+										return deleteComment(c.id);
+									}}>
+									x
+								</button>
+							</div>
+						);
+					})}
+				</div>
+				<input
+					className={styles.input}
+					placeholder="비난,비방,욕설 등은 제재됩니다"
+					onChange={(e) => {
+						return setComment(e.target.value);
+					}}
+				/>
+				<button
+					className={styles.commentBtn}
+					onClick={() => {
+						return saveComment((singleTosso as any).id);
+					}}>
+					Push
+				</button>
+			</div>
 		</>
 	);
 }
