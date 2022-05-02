@@ -16,40 +16,34 @@ import QuillWrapper from './Dynamic';
 import 'react-quill/dist/quill.snow.css';
 
 function TossoDetails({ id }) {
+	const dbInstance = collection(database, 'tosso');
+
 	const [singleTosso, setSingleTosso] = useState({});
 	// 프롭스로 받은 id에 해당하는 firestore 문서 정보를 singleTosso에 저장
 	// firebase에 요청하므로 비동기 처리사용
 	async function getSingleTosso() {
 		if (id) {
-			const singleTosso = doc(database, 'tosso', id);
+			const singleTosso = doc(dbInstance, id);
 			// getDoc은 특정 문서(doc객체)만 받아오는 것
 			const data = await getDoc(singleTosso);
 			setSingleTosso({ ...data.data(), id: data.id });
 			// eslint-disable-next-line @typescript-eslint/no-use-before-define
 			getComments(id);
+		} else {
+			getDocs(dbInstance).then((data) => {
+				setSingleTosso(
+					data.docs.map((item) => {
+						return { ...item.data(), id: item.id };
+					})[0],
+				);
+			});
 		}
 	}
 	// id가 바뀔 때마다 getSingleTosso 다시 실행
 	// []이면 페이지가 새로 렌더링(새로고침등)될때마다, [값]이면 값이 바뀔 때마다, 없으면 처음 한번만 수행
 	useEffect(() => {
 		getSingleTosso();
-	}, [id]);
-
-	const dbInstance = collection(database, 'tosso');
-
-	// 새로고침시 기본 표시할 문서(맨 처음 문서를 기본으로)
-	function getTosso() {
-		getDocs(dbInstance).then((data) => {
-			setSingleTosso(
-				data.docs.map((item) => {
-					return { ...item.data(), id: item.id };
-				})[0],
-			);
-		});
-	}
-	useEffect(() => {
-		getTosso();
-	}, []);
+	}, [singleTosso]);
 
 	// 수정버튼 눌렀는지 관련 스테이트
 	const [isEdit, setIsEdit] = useState(false);
@@ -72,7 +66,8 @@ function TossoDetails({ id }) {
 			title: tossoTitle,
 			desc: tossoDesc,
 		}).then(() => {
-			window.location.reload();
+			setIsEdit(false);
+			alert('수정되었습니다.');
 		});
 	};
 
@@ -80,7 +75,8 @@ function TossoDetails({ id }) {
 		const collectionById = doc(database, 'tosso', id);
 
 		deleteDoc(collectionById).then(() => {
-			window.location.reload();
+			setIsEdit(false);
+			alert('삭제되었습니다.');
 		});
 	};
 
@@ -93,7 +89,7 @@ function TossoDetails({ id }) {
 
 		// 토큰과 받고싶은 메세지를 요청의 Body에 담아 POST전송
 		axios({
-			url: 'https://ec15-121-166-111-58.jp.ngrok.io/fcm',
+			url: 'https://53bd-121-166-111-58.ap.ngrok.io/fcm',
 			method: 'POST',
 			data: {
 				token: `${token}`,
@@ -139,23 +135,38 @@ function TossoDetails({ id }) {
 
 	return (
 		<>
-			<button onClick={getAlert}>
-				<h2>{(singleTosso as any).title}</h2>
-			</button>
-			<div
-				dangerouslySetInnerHTML={{
-					__html: (singleTosso as any).desc,
-				}}
-			/>
+			{singleTosso ? (
+				<div>
+					<h2>{(singleTosso as any).title}</h2>
+					<div
+						dangerouslySetInnerHTML={{
+							__html: (singleTosso as any).desc,
+						}}
+					/>
+				</div>
+			) : (
+				<h2>게시글을 클릭하세요.</h2>
+			)}
 
 			<div>
-				<button className={styles.editBtn} onClick={getEditData}>
+				<button
+					className={styles.editBtn}
+					onClick={() => {
+						if (singleTosso) {
+							return getEditData();
+						}
+						return alert('게시글이 없습니다.');
+					}}>
 					Edit
 				</button>
 				<button
 					className={styles.deleteBtn}
 					onClick={() => {
-						return deleteTosso((singleTosso as any).id);
+						if (singleTosso) {
+							return deleteTosso((singleTosso as any).id);
+						}
+
+						return alert('게시글이 없습니다.');
 					}}>
 					Delete
 				</button>
@@ -190,12 +201,12 @@ function TossoDetails({ id }) {
 				<></>
 			)}
 
-			<div className={styles.ReactQuill}>
+			<div className={styles.commentsContainer}>
 				<h4>comments</h4>
 				<div>
 					{commentArray.map((c) => {
 						return (
-							<div className={styles.commentsContainer}>
+							<div className={styles.commentsWrapper}>
 								<span>{c.content}</span>
 								<button
 									className={styles.commentsDeleteBtn}
@@ -218,7 +229,10 @@ function TossoDetails({ id }) {
 				<button
 					className={styles.commentBtn}
 					onClick={() => {
-						return saveComment((singleTosso as any).id);
+						if (singleTosso) {
+							return saveComment((singleTosso as any).id);
+						}
+						return alert('게시글이 없습니다.');
 					}}>
 					Push
 				</button>

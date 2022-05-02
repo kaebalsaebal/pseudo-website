@@ -7,7 +7,7 @@ import 'react-quill/dist/quill.snow.css';
 import styles from '../../styles/Tosso.module.css';
 
 // index.tsx에서 getSingleTosso프롭스 가져오기
-function TossoOperations({ getSingleTosso }) {
+function TossoOperations({ getSingleTosso, email }) {
 	// isInputVisible 기본값은 false
 	const [isInputVisible, setInputVisible] = useState(false);
 	// isInputVisible 값 변경시키는 트리거
@@ -34,14 +34,16 @@ function TossoOperations({ getSingleTosso }) {
 		// getDocs는 콜렉션 데이타 가져오기
 		getDocs(dbInstance).then(function (data) {
 			// data가 오면(콜백) 출력
-			console.log(data);
+			// console.log(data);
 			// 실제 문서 필드는 data.docs.(아이디)._document.data에 존재
 			// 마찬가지로 data.docs의 각 요소들(item)을 콜백하여 거기에서 뽑아내기
+			/*
 			console.log(
 				data.docs.map((item) => {
 					return { ...item.data(), id: item.id };
 				}),
 			);
+			*/
 			// tossoArray에 각 문서값 저장
 			setTossoArray(
 				data.docs.map((item) => {
@@ -51,25 +53,42 @@ function TossoOperations({ getSingleTosso }) {
 		});
 	}
 	// 페이지를 불러올 때마다 매번 getTosso 실행
-	useEffect(function () {
-		getTosso();
-	}, []);
+	useEffect(
+		function () {
+			getTosso();
+		},
+		[tossoArray],
+	);
 
 	// addDoc의 트리거함수
 	function saveTosso() {
+		if (!tossoTitle) {
+			return alert('제목을 입력하세요.');
+		}
+		if (!tossoDesc) {
+			return alert('내용을 입력하세요.');
+		}
+
 		// addDoc은 콜렉션(dbInstance)에 문서 추가
-		addDoc(dbInstance, {
+		return addDoc(dbInstance, {
 			// title 필드 생성후 값을 tossoTitle로, desc 필드 생성후 값을 tossoDesc로
 			title: tossoTitle,
 			desc: tossoDesc,
+			author: email,
+			edited: Date.now(),
 			// 문서 추가가 완료되면 콜백작동
-		}).then(() => {
-			// 입력창 초기화
-			setTossoTitle('');
-			setTossoDesc('');
-			// 현재 문서들 보여주기
-			getTosso();
-		});
+		})
+			.then(() => {
+				alert('게시글이 등록되었습니다.');
+				// 입력창 초기화
+				setTossoTitle('');
+				setTossoDesc('');
+				setInputVisible(false);
+			})
+			.catch((err) => {
+				console.log(err);
+				alert('게시글 등록에 실패했습니다.');
+			});
 	}
 
 	return (
@@ -134,4 +153,5 @@ export default TossoOperations;
 // 프롭스체크
 TossoOperations.propTypes = {
 	getSingleTosso: PropTypes.func.isRequired,
+	email: PropTypes.string.isRequired,
 };

@@ -1,0 +1,6 @@
+.loginContainer {
+    width: 50%;
+    height: 50%;
+    display: inline-block;
+    border: 1px solid rgb(119, 27, 27);
+}

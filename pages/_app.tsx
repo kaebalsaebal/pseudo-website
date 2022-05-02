@@ -9,29 +9,6 @@ import initToken from '../src/firebase/fcm/messaging_get_token';
 import initMessage from '../src/firebase/fcm/messaging_get_message';
 
 function MyApp({ Component, pageProps }: AppProps) {
-	useEffect(() => {
-		if ('serviceWorker' in navigator) {
-			window.addEventListener('load', function () {
-				navigator.serviceWorker
-					.register('/firebase-messaging-sw.js')
-					.then(
-						function (registration) {
-							console.log(
-								'Service Worker registration successful with scope: ',
-								registration.scope,
-							);
-						},
-						function (err) {
-							console.log(
-								'Service Worker registration failed: ',
-								err,
-							);
-						},
-					);
-			});
-		}
-	}, []);
-
 	const dbTokenData = collection(database, 'tokens');
 	/* 앱 실행시 토큰받는 함수(messaging_get_token 내 initToken)
 	initToken의 리턴값을 그냥 출력하면 프로미스 객체 반환(getToken()이 프로미스 함수)
