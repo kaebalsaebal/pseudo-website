@@ -143,6 +143,10 @@ function TossoDetails({ id }) {
 							__html: (singleTosso as any).desc,
 						}}
 					/>
+					<i>
+						{(singleTosso as any).author}{' '}
+						{(singleTosso as any).edited}
+					</i>
 				</div>
 			) : (
 				<h2>게시글을 클릭하세요.</h2>

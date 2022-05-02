@@ -19,7 +19,7 @@ function Login() {
 			})
 			.catch((err) => {
 				console.log(err);
-				alert('로그인에 실패했습니다.');
+				alert('사용자가 등록되지 않았거나 로그인에 실패했습니다.');
 			});
 	};
 

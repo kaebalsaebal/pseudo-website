@@ -41,7 +41,7 @@ const Tosso = () => {
 				pathname: '/login',
 			});
 		});
-	}, [auth.currentUser]);
+	});
 
 	return (
 		<div className={styles.container}>
